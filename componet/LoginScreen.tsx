@@ -33,6 +33,10 @@ export default function LoginScreen() {
     Poppins_600SemiBold
   });
 
+  if (!fontsLoaded) {
+    return <Text>Loading...</Text>;
+  }  
+
   function handleLogin() {
     navigation.navigate("Master");
   }

@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import LoginScreen from "./componet/LoginScreen"; // Adjust the path if necessary
 import RegisterScreen from "./componet/RegisterScreen"
 import MasterScreen from "./componet/MasterScreen"
+import HomeScreen from "./componet/HomeScreen"
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -29,9 +30,10 @@ export default function App() {
           },
         }}
       >
-        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Login" component={HomeScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="Master" component={MasterScreen} />
+        <Stack.Screen name="Home" component={LoginScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
