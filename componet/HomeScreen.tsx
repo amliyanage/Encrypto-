@@ -4,9 +4,11 @@ import { TextInput } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons"; // Using Ionicons for icons
 import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import AddEntryPopup from "./AddEntryPopup";
 
 export default function HomeScreen() {
   const [isSearching, setIsSearching] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(true);
 
   return (
     <KeyboardAvoidingView style={styles.container}>
@@ -34,6 +36,7 @@ export default function HomeScreen() {
         )}
       </View>
       <TouchableOpacity
+        onPress={() => setIsModalVisible(true)}
         style={{
           backgroundColor: "#363636",
           width: 50,
@@ -49,6 +52,11 @@ export default function HomeScreen() {
       >
         <Icon name="add" size={28} color="#fff" />
       </TouchableOpacity>
+
+      <AddEntryPopup
+        visible={isModalVisible}
+        onClose={() => setIsModalVisible(false)}
+      />
     </KeyboardAvoidingView>
   );
 }
