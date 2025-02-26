@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   KeyboardAvoidingView,
   StyleSheet,
@@ -12,35 +11,30 @@ import {
   Poppins_400Regular,
   Poppins_700Bold,
   Poppins_500Medium,
-  Poppins_600SemiBold
+  Poppins_600SemiBold,
 } from "@expo-google-fonts/poppins";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
 
 type RootStackParamList = {
   Login: undefined;
   Register: undefined;
-  Master: undefined;
 };
 
 export default function LoginScreen() {
-
-  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_700Bold,
     Poppins_500Medium,
-    Poppins_600SemiBold
+    Poppins_600SemiBold,
   });
 
-  function handleLogin() {
-    navigation.navigate("Master");
-  }
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
   return (
-    <KeyboardAvoidingView style={styles.container}>
-      <Image
-        source={require("../assets/image.png")}
+    <View style={styles.container}>
+        <Image
+        source={require("../assets/image copy 2.png")}
         style={{ width: "100%", height: 300, marginBottom: -30 }}
       />
       <Text
@@ -49,6 +43,7 @@ export default function LoginScreen() {
           fontFamily: "Poppins_700Bold",
           textAlign: "center",
           color: "#363636",
+          marginTop: 20,
         }}
       >
         Welcome to Encrypto
@@ -61,24 +56,16 @@ export default function LoginScreen() {
           marginBottom: 20,
         }}
       >
-        Sign in to continue
+        Enter master password to continue
       </Text>
+
       <TextInput
-        label="Email"
+        label="Master Password"
         mode="outlined"
         style={styles.input}
         activeOutlineColor="#363636"
       />
-      <TextInput
-        label="Password"
-        mode="outlined"
-        style={styles.input}
-        activeOutlineColor="#363636"
-        secureTextEntry
-      />
-      <TouchableOpacity style={styles.button}
-       onPress={handleLogin}
-      >
+      <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
       <TouchableOpacity
@@ -87,16 +74,16 @@ export default function LoginScreen() {
           flexDirection: "row",
           justifyContent: "center",
         }}
-        onPress={() => navigation.navigate("Register")}
+        onPress={() => navigation.navigate("Login")}
       >
         <Text style={{ color: "#363636", fontFamily: "Poppins_400Regular" }}>
-          Don't have an account ?{" "}
+          If you wot to switch account ?{" "}
         </Text>
         <Text style={{ color: "#363636", fontFamily: "Poppins_600SemiBold" }}>
-          Sign up
+          Sign In
         </Text>
       </TouchableOpacity>
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 

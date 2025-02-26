@@ -3,6 +3,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { useNavigation } from "@react-navigation/native";
 import LoginScreen from "./componet/LoginScreen"; // Adjust the path if necessary
 import RegisterScreen from "./componet/RegisterScreen"
+import MasterScreen from "./componet/MasterScreen"
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -30,6 +31,7 @@ export default function App() {
       >
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="Master" component={MasterScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
