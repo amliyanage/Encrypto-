@@ -8,7 +8,7 @@ import AddEntryPopup from "./AddEntryPopup";
 
 export default function HomeScreen() {
   const [isSearching, setIsSearching] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   return (
     <KeyboardAvoidingView style={styles.container}>
