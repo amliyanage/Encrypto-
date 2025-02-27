@@ -35,6 +35,20 @@ export const register = createAsyncThunk<{ token: string, refreshToken: string, 
     }
 )
 
+export const  login = createAsyncThunk<{ token: string, refreshToken: string, userEmail: string }, any>(
+    "user/login",
+    async (user): Promise<{ token: string, refreshToken: string, userEmail: string }> => {
+        try{
+            console.log(user);
+            const response = await api.post("/auth/login", user , {withCredentials: true});
+            return response.data as { token: string; refreshToken: string; userEmail: string };
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+)
+
 const userSlice = createSlice({
     name : "userReducer",
     initialState,
@@ -56,6 +70,24 @@ const userSlice = createSlice({
                 state.loading = false;
                 state.error = action.error.message || "";
                 console.error(action.error);
+            })
+        builder
+            .addCase(login.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(login.fulfilled, (state, action: { payload: { token: string, refreshToken: string, userEmail: string } }) => {
+                console.log(action.payload);
+                state.loading = false;
+                state.isAuthenticated = true;
+                state.jwt_token = action.payload.token;
+                state.refresh_token = action.payload.refreshToken;
+                state.username = action.payload.userEmail;
+            })
+            .addCase(login.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || "";
+                console.error(action.error);
+                alert("wrong email or password");
             })
     }
 })

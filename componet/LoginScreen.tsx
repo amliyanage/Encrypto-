@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   StyleSheet,
@@ -15,6 +15,9 @@ import {
   Poppins_600SemiBold
 } from "@expo-google-fonts/poppins";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../store/store";
+import { login } from "../reducer/user-slice";
 
 type RootStackParamList = {
   Login: undefined;
@@ -25,6 +28,10 @@ type RootStackParamList = {
 export default function LoginScreen() {
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const dispatch = useDispatch<AppDispatch>();
+  const loading = useSelector((state : RootState) => state.user.loading);
+  const isAuth = useSelector((state : RootState) => state.user.isAuthenticated);
+  const [tempLoading, setTempLoading] = useState(false);
 
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -37,9 +44,24 @@ export default function LoginScreen() {
     return <Text>Loading...</Text>;
   }  
 
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   function handleLogin() {
-    navigation.navigate("Master");
+    setTempLoading(true);
+    const sendData = {
+      email: email,
+      password: password,
+    }
+    dispatch(login({ email, password }));
   }
+
+  useEffect(() => {
+    if (isAuth && tempLoading) {
+      navigation.navigate("Master");
+    }
+  }
+  , [isAuth]);
 
   return (
     <KeyboardAvoidingView style={styles.container}>
@@ -72,6 +94,7 @@ export default function LoginScreen() {
         mode="outlined"
         style={styles.input}
         activeOutlineColor="#363636"
+        onChangeText={(text) => setEmail(text)}
       />
       <TextInput
         label="Password"
@@ -79,11 +102,14 @@ export default function LoginScreen() {
         style={styles.input}
         activeOutlineColor="#363636"
         secureTextEntry
+        onChangeText={(text) => setPassword(text)}
       />
       <TouchableOpacity style={styles.button}
        onPress={handleLogin}
       >
-        <Text style={styles.buttonText}>Login</Text>
+        <Text style={styles.buttonText}>
+          {loading ? "Loading..." : "Sign In"}
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={{
