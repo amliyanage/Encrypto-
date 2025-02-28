@@ -15,6 +15,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store/store";
 import { getAllPassword } from "../reducer/password-slice";
+import { Password } from "../module/Password";
 
 export default function HomeScreen() {
   const [isSearching, setIsSearching] = useState(false);
@@ -26,6 +27,8 @@ export default function HomeScreen() {
   const jwtToken = useSelector((state: RootState) => state.user.jwt_token);
   const userId = useSelector((state: RootState) => state.user.username);
   const isLoading = useSelector((state: RootState) => state.password.loading);
+  const [type , setType] = useState("add");
+  const [targetPassword , setTargetPassword] = useState<Password>();
 
   useEffect(() => {
     const sendData = {
@@ -51,6 +54,24 @@ export default function HomeScreen() {
     return <Text>Loading fonts...</Text>;
   }
 
+  const handleAddPassword = () => {
+    setType("add");
+    setTargetPassword(undefined);
+    setIsModalVisible(true);
+  }
+
+  const handleCloseSearch = () => {
+    setIsSearching(false);
+    setSearchQuery("");
+  };
+
+  const handleUpdatePopup = (password : Password) => {
+    setType("update");
+    console.log(type)
+    setTargetPassword(password);
+    setIsModalVisible(true);
+  }
+
   return (
     <KeyboardAvoidingView style={styles.container}>
       <View style={{ marginTop: 50 }}>
@@ -70,7 +91,7 @@ export default function HomeScreen() {
             value={searchQuery} // Bind the search query to the input value
             onChangeText={setSearchQuery} // Update the search query on change
             right={
-              <TextInput.Icon icon="close" onPress={() => setIsSearching(false)} />
+              <TextInput.Icon icon="close" onPress={handleCloseSearch} />
             }
           />
         )}
@@ -82,7 +103,9 @@ export default function HomeScreen() {
         <ScrollView style={styles.scrollView}>
           {filteredPasswords && filteredPasswords.length > 0 ? (
             filteredPasswords.map((password, key) => (
-              <TouchableOpacity key={key} style={styles.touchableOpacity}>
+              <TouchableOpacity key={key} style={styles.touchableOpacity}
+                onPress={() => handleUpdatePopup(password)}
+              >
                 <Image source={require("../assets/image copy 3.png")} style={styles.image} />
                 <View style={styles.textContainer}>
                   <Text style={styles.mainText}>{password.website}</Text>
@@ -97,7 +120,7 @@ export default function HomeScreen() {
       )}
 
       <TouchableOpacity
-        onPress={() => setIsModalVisible(true)}
+        onPress={handleAddPassword}
         style={styles.addButton}
       >
         <Icon name="add" size={28} color="#fff" />
@@ -106,6 +129,8 @@ export default function HomeScreen() {
       <AddEntryPopup
         visible={isModalVisible}
         onClose={() => setIsModalVisible(false)}
+        type={type}
+        passwordData={targetPassword}
       />
     </KeyboardAvoidingView>
   );

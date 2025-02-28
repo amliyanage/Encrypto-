@@ -53,6 +53,24 @@ export const getAllPassword = createAsyncThunk<Password[], { userId: string, jwt
     }
 )
 
+export const updatePassword = createAsyncThunk(
+    'password/updatePassword',
+    async (data : {password : Password , jwtToken : string}) => {
+        try {
+            const response = await api.put("/passwords/update-password", data.password, {
+                withCredentials: true,
+                headers: {
+                    Authorization: `Bearer ${data.jwtToken}`
+                }
+            })
+            return response.data as Password
+        } catch (error) {
+            console.error(error)
+            throw error
+        }
+    }
+)
+
 const passwordSlice = createSlice({
     name: "password",
     initialState,
@@ -86,6 +104,21 @@ const passwordSlice = createSlice({
             })
             .addCase(getAllPassword.rejected, (state, action) => {
                 console.log("All password fetch failed")
+                state.loading = false
+                state.error = action.error.message || ""
+            })
+        builder
+            .addCase(updatePassword.pending, (state, action) => {
+                console.log("Updating password")
+                state.loading = true
+            })
+            .addCase(updatePassword.fulfilled, (state, action) => {
+                console.log("Password updated")
+                state.loading = false
+                alert("Password updated")
+            })
+            .addCase(updatePassword.rejected, (state, action) => {
+                console.log("Password update failed")
                 state.loading = false
                 state.error = action.error.message || ""
             })

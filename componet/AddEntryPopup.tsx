@@ -13,7 +13,7 @@ import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store/store";
 import { Password } from "../module/Password";
-import { cretaePassword } from "../reducer/password-slice";
+import { cretaePassword, updatePassword } from "../reducer/password-slice";
 
 // Function to generate a random strong password
 const generateRandomPassword = () => {
@@ -31,9 +31,12 @@ const generateRandomPassword = () => {
 interface AddEntryPopupProps {
   visible: boolean;
   onClose: () => void;
+  type: string;
+  passwordData ?: Password;
 }
 
-const AddEntryPopup: React.FC<AddEntryPopupProps> = ({ visible, onClose }) => {
+const AddEntryPopup: React.FC<AddEntryPopupProps> = ({ visible, onClose , type , passwordData }) => {
+  console.log("coming    ",passwordData);
   const [generatedPassword, setGeneratedPassword] = useState("");
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
@@ -51,14 +54,36 @@ const AddEntryPopup: React.FC<AddEntryPopupProps> = ({ visible, onClose }) => {
     }
   }, [isLoading]);
 
+  useEffect(() => {
+    if (passwordData) {
+      setName(passwordData.website || "");
+      setUsername(passwordData.emailOrUsername || "");
+      setPassword(passwordData.password || "");
+    } else {
+      setName("");
+      setUsername("");
+      setPassword("");
+    }
+  }, [passwordData]);
+  
+
   const handleSave = () => {
-    setTempLoading(true);
-    const Sendpassword = new Password(0,username,password,name,userId ?? "");
-    const sendData = {
+    if (type === "add") {
+      setTempLoading(true);
+      const Sendpassword = new Password(0,username,password,name,userId ?? "");
+      const sendData = {
         password : Sendpassword,
         jwtToken : jwt_token ?? ""
+      }
+      dispatch(cretaePassword(sendData));
+    } else {
+      const sendData = new Password(passwordData?.id ?? 0,username,password,name,userId ?? "");
+      const data = {
+        password : sendData,
+        jwtToken : jwt_token ?? ""
+      }
+      dispatch(updatePassword(data));
     }
-    dispatch(cretaePassword(sendData));
   };
 
   const [fontsLoaded] = useFonts({
@@ -76,7 +101,9 @@ const AddEntryPopup: React.FC<AddEntryPopupProps> = ({ visible, onClose }) => {
     <Modal visible={visible} animationType="slide" transparent={true} onRequestClose={onClose}>
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Add New One</Text>
+          <Text style={styles.modalTitle}>{
+            type === "add" ? "Add New Password" : "Update Password"  
+          }</Text>
 
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Ionicons name="close" size={24} color="#000" />
@@ -87,6 +114,8 @@ const AddEntryPopup: React.FC<AddEntryPopupProps> = ({ visible, onClose }) => {
             value={name}
             onChangeText={(text) => setName(text)}
             style={styles.input}
+            mode="outlined"
+          
           />
           <TextInput
             label="Username or Email"
@@ -94,7 +123,7 @@ const AddEntryPopup: React.FC<AddEntryPopupProps> = ({ visible, onClose }) => {
             onChangeText={(text) => setUsername(text)}
             style={styles.input}
             activeOutlineColor="#363636"
-            
+            mode="outlined"
           />
           <View style={styles.passwordInputContainer}>
             <TextInput
@@ -103,6 +132,7 @@ const AddEntryPopup: React.FC<AddEntryPopupProps> = ({ visible, onClose }) => {
               value={password}
               onChangeText={(text) => setPassword(text)}
               style={styles.input}
+              mode="outlined"
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
               <Ionicons
@@ -127,7 +157,9 @@ const AddEntryPopup: React.FC<AddEntryPopupProps> = ({ visible, onClose }) => {
           </Button>
 
           <Button mode="contained" onPress={handleSave} style={styles.saveButton}>
-            Save
+            {
+              type === "add" ? "Add" : "Update"
+            }
           </Button>
         </View>
       </View>
@@ -161,8 +193,6 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    borderColor: "#000",
-    borderWidth: 1,
     borderRadius: 5,
     marginBottom: 15,
     paddingLeft: 0,
