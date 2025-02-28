@@ -3,7 +3,7 @@ import { View, Text, KeyboardAvoidingView, StyleSheet, Image, ScrollView, Activi
 import { TextInput } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons";
+import Icon from "react-native-vector-icons/MaterialIcons";
 import AddEntryPopup from "./AddEntryPopup";
 import { useFonts } from "expo-font";
 import {
@@ -14,7 +14,7 @@ import {
 } from "@expo-google-fonts/poppins";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store/store";
-import { getAllPassword } from "../reducer/password-slice";
+import { deletePassword, getAllPassword } from "../reducer/password-slice";
 import { Password } from "../module/Password";
 
 export default function HomeScreen() {
@@ -36,7 +36,7 @@ export default function HomeScreen() {
       jwtToken: jwtToken ?? "",
     };
     dispatch(getAllPassword(sendData));
-  }, [userId, jwtToken, isModalVisible]);
+  }, []);
 
   const filteredPasswords = passwords.filter((password) => {
     return password.website.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -72,6 +72,14 @@ export default function HomeScreen() {
     setIsModalVisible(true);
   }
 
+  const handleDeletePassword = (password : Password) => {
+    const sendData = {
+      passwordId : password.id ?? 0,
+      jwtToken : jwtToken ?? ""
+    }
+    dispatch(deletePassword(sendData));
+  }
+
   return (
     <KeyboardAvoidingView style={styles.container}>
       <View style={{ marginTop: 50 }}>
@@ -103,14 +111,17 @@ export default function HomeScreen() {
         <ScrollView style={styles.scrollView}>
           {filteredPasswords && filteredPasswords.length > 0 ? (
             filteredPasswords.map((password, key) => (
-              <TouchableOpacity key={key} style={styles.touchableOpacity}
+              <TouchableOpacity key={key} style={styles.touchableMain}
                 onPress={() => handleUpdatePopup(password)}
               >
-                <Image source={require("../assets/image copy 3.png")} style={styles.image} />
-                <View style={styles.textContainer}>
-                  <Text style={styles.mainText}>{password.website}</Text>
-                  <Text style={styles.subText}>{password.emailOrUsername}</Text>
+                <View style={styles.touchableOpacity}>
+                  <Image source={require("../assets/image copy 3.png")} style={styles.image} />
+                  <View style={styles.textContainer}>
+                    <Text style={styles.mainText}>{password.website}</Text>
+                    <Text style={styles.subText}>{password.emailOrUsername}</Text>
+                  </View>
                 </View>
+                <Icon name="delete" size={20} color="#363636" onPress={() => handleDeletePassword(password)} style ={{position : "absolute" , right : 0}} />
               </TouchableOpacity>
             ))
           ) : (
@@ -178,10 +189,15 @@ const styles = StyleSheet.create({
   touchableOpacity: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 10,
+  },
+  touchableMain : {
+    flexDirection: "row",
+    alignItems: "center",
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: "#363636",
-    gap: 10,
+    justifyContent : "space-between"
   },
   image: {
     width: 30,
@@ -202,3 +218,4 @@ const styles = StyleSheet.create({
     bottom: 4,
   },
 });
+

@@ -71,6 +71,24 @@ export const updatePassword = createAsyncThunk(
     }
 )
 
+export const deletePassword = createAsyncThunk(
+    'password/deletePassword',
+    async (data : {passwordId : number , jwtToken : string}) => {
+        try {
+            const response = await api.delete("/passwords/delete-password/"+data.passwordId, {
+                withCredentials: true,
+                headers: {
+                    Authorization: `Bearer ${data.jwtToken}`
+                }
+            })
+            return response.data as Password
+        } catch (error) {
+            console.error(error)
+            throw error
+        }
+    }
+)
+
 const passwordSlice = createSlice({
     name: "password",
     initialState,
@@ -84,6 +102,7 @@ const passwordSlice = createSlice({
             .addCase(cretaePassword.fulfilled, (state, action) => {
                 console.log("Password created")
                 state.loading = false
+                state.password.push(action.payload)
                 alert("Password created")
             })
             .addCase(cretaePassword.rejected, (state, action) => {
@@ -115,10 +134,32 @@ const passwordSlice = createSlice({
             .addCase(updatePassword.fulfilled, (state, action) => {
                 console.log("Password updated")
                 state.loading = false
+                state.password = state.password.map((password) => {
+                    if (password.id === action.payload.id) {
+                        return action.payload
+                    }
+                    return password
+                })
                 alert("Password updated")
             })
             .addCase(updatePassword.rejected, (state, action) => {
                 console.log("Password update failed")
+                state.loading = false
+                state.error = action.error.message || ""
+            })
+        builder
+            .addCase(deletePassword.pending, (state, action) => {
+                console.log("Deleting password")
+                state.loading = true
+            })
+            .addCase(deletePassword.fulfilled, (state, action) => {
+                console.log("Password deleted")
+                state.loading = false
+                alert("Password deleted")
+                state.password = state.password.filter((password) => password.id !== action.payload.id)
+            })
+            .addCase(deletePassword.rejected, (state, action) => {
+                console.log("Password deletion failed")
                 state.loading = false
                 state.error = action.error.message || ""
             })
