@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, KeyboardAvoidingView, StyleSheet, Image, ScrollView, ActivityIndicator } from "react-native";
 import { TextInput } from "react-native-paper";
-import { Ionicons } from "@expo/vector-icons"; // Using Ionicons for icons
+import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import AddEntryPopup from "./AddEntryPopup";
@@ -19,6 +19,7 @@ import { getAllPassword } from "../reducer/password-slice";
 export default function HomeScreen() {
   const [isSearching, setIsSearching] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [searchQuery, setSearchQuery] = useState(""); // State to store the search query
   const passwords = useSelector((state: RootState) => state.password.password);
   const dispatch = useDispatch<AppDispatch>();
   const isAuth = useSelector((state: RootState) => state.user.isAuthenticated);
@@ -32,7 +33,12 @@ export default function HomeScreen() {
       jwtToken: jwtToken ?? "",
     };
     dispatch(getAllPassword(sendData));
-  }, [userId, jwtToken , isModalVisible]);
+  }, [userId, jwtToken, isModalVisible]);
+
+  const filteredPasswords = passwords.filter((password) => {
+    return password.website.toLowerCase().includes(searchQuery.toLowerCase()) || 
+           password.emailOrUsername.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -61,6 +67,8 @@ export default function HomeScreen() {
             mode="outlined"
             style={styles.inputExpanded}
             activeOutlineColor="#363636"
+            value={searchQuery} // Bind the search query to the input value
+            onChangeText={setSearchQuery} // Update the search query on change
             right={
               <TextInput.Icon icon="close" onPress={() => setIsSearching(false)} />
             }
@@ -72,8 +80,8 @@ export default function HomeScreen() {
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
         <ScrollView style={styles.scrollView}>
-          {passwords && passwords.length > 0 ? (
-            passwords.map((password, key) => (
+          {filteredPasswords && filteredPasswords.length > 0 ? (
+            filteredPasswords.map((password, key) => (
               <TouchableOpacity key={key} style={styles.touchableOpacity}>
                 <Image source={require("../assets/image copy 3.png")} style={styles.image} />
                 <View style={styles.textContainer}>
