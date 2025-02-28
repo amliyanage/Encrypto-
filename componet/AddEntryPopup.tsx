@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Modal, StyleSheet, TouchableOpacity } from "react-native";
 import { TextInput, Button } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,6 +10,10 @@ import {
   Poppins_600SemiBold
 } from "@expo-google-fonts/poppins";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../store/store";
+import { Password } from "../module/Password";
+import { cretaePassword } from "../reducer/password-slice";
 
 // Function to generate a random strong password
 const generateRandomPassword = () => {
@@ -35,10 +39,26 @@ const AddEntryPopup: React.FC<AddEntryPopupProps> = ({ visible, onClose }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
+  const userId = useSelector((state: RootState) => state.user.username);
+  const jwt_token = useSelector((state: RootState) => state.user.jwt_token);
+  const dispatch = useDispatch<AppDispatch>();
+  const isLoading = useSelector((state: RootState) => state.password.loading);
+  const [tempLoading, setTempLoading] = useState(false);
+
+  useEffect(() => {
+    if (isLoading && tempLoading) {
+      onClose();
+    }
+  }, [isLoading]);
 
   const handleSave = () => {
-    const entryData = { name, username, password };
-    onClose(); // Close modal after saving
+    setTempLoading(true);
+    const Sendpassword = new Password(0,username,password,name,userId ?? "");
+    const sendData = {
+        password : Sendpassword,
+        jwtToken : jwt_token ?? ""
+    }
+    dispatch(cretaePassword(sendData));
   };
 
   const [fontsLoaded] = useFonts({
@@ -65,13 +85,13 @@ const AddEntryPopup: React.FC<AddEntryPopupProps> = ({ visible, onClose }) => {
           <TextInput
             label="Name (e.g., Website Name)"
             value={name}
-            onChangeText={setName}
+            onChangeText={(text) => setName(text)}
             style={styles.input}
           />
           <TextInput
             label="Username or Email"
             value={username}
-            onChangeText={setUsername}
+            onChangeText={(text) => setUsername(text)}
             style={styles.input}
             activeOutlineColor="#363636"
             
@@ -81,7 +101,7 @@ const AddEntryPopup: React.FC<AddEntryPopupProps> = ({ visible, onClose }) => {
               label="Password"
               secureTextEntry={!showPassword} // Toggle secureTextEntry based on showPassword state
               value={password}
-              onChangeText={setPassword}
+              onChangeText={(text) => setPassword(text)}
               style={styles.input}
             />
             <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
