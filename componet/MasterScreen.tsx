@@ -17,7 +17,7 @@ import { useNavigation, NavigationProp } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../store/store";
-import { loginInMasterPassword } from "../reducer/user-slice";
+import { loginInMasterPassword, logout } from "../reducer/user-slice";
 
 type RootStackParamList = {
   Login: undefined;
@@ -61,6 +61,11 @@ export default function LoginScreen() {
     } as { email : string , password: string , jwt_token :string }
 
     dispatch(loginInMasterPassword(sendData));
+  }
+
+  const handleSwitch = () => {
+    dispatch(logout()); // Dispatch logout action
+    //navigation.navigate("Login"); // Navigate after logout action has been processed
   }
 
   return (
@@ -110,7 +115,7 @@ export default function LoginScreen() {
           flexDirection: "row",
           justifyContent: "center",
         }}
-        onPress={() => navigation.navigate("Login")}
+        onPress={handleSwitch}
       >
         <Text style={{ color: "#363636", fontFamily: "Poppins_400Regular" }}>
           If you wot to switch account ?{" "}
