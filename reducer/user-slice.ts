@@ -20,7 +20,7 @@ const initialState: {
 }
 
 const api = axios.create({
-    baseURL: "http://192.168.112.1:5000"
+    baseURL: "http://192.168.180.29:5000"
 })
 
 export const register = createAsyncThunk<{ token: string, refreshToken: string, userEmail: string }, any>(
@@ -121,7 +121,7 @@ const userSlice = createSlice({
             .addCase(loginInMasterPassword.fulfilled, (state, action: { payload: { token: string, refreshToken: string, userEmail: string } }) => {
                 console.log(action.payload);
                 state.loading = false;
-                state.isAuthenticated = true;
+                state.isMaterLogin = true;
             })
             .addCase(loginInMasterPassword.rejected, (state, action) => {
                 state.loading = false;

@@ -37,7 +37,7 @@ export default function LoginScreen() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const [masterPassword, setMasterPassword] = useState("");
   const dispatch = useDispatch<AppDispatch>();
-  const isMaster = useSelector((state: RootState) => state.user.isAuthenticated);
+  const isMaster = useSelector((state: RootState) => state.user.isMaterLogin);
   const email = useSelector((state: RootState) => state.user.username);
   const jwtToken = useSelector((state: RootState) => state.user.jwt_token);
   const [tempLoading, setTempLoading] = useState(false);
