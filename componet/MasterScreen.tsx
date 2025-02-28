@@ -14,10 +14,15 @@ import {
   Poppins_600SemiBold,
 } from "@expo-google-fonts/poppins";
 import { useNavigation, NavigationProp } from "@react-navigation/native";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../store/store";
+import { loginInMasterPassword } from "../reducer/user-slice";
 
 type RootStackParamList = {
   Login: undefined;
   Register: undefined;
+  Home: undefined;
 };
 
 export default function LoginScreen() {
@@ -30,6 +35,33 @@ export default function LoginScreen() {
   });
 
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+  const [masterPassword, setMasterPassword] = useState("");
+  const dispatch = useDispatch<AppDispatch>();
+  const isMaster = useSelector((state: RootState) => state.user.isAuthenticated);
+  const email = useSelector((state: RootState) => state.user.username);
+  const jwtToken = useSelector((state: RootState) => state.user.jwt_token);
+  const [tempLoading, setTempLoading] = useState(false);
+
+  useEffect(() => {
+    if (isMaster && tempLoading) {
+      navigation.navigate("Home");
+    }
+  }, [isMaster]);
+
+  if (!fontsLoaded) {
+    return <Text>Loading...</Text>;
+  }
+
+  const handleLogin = () => {
+    setTempLoading(true);
+    const sendData = {
+      email: email,
+      password: masterPassword,
+      jwt_token: jwtToken,
+    } as { email : string , password: string , jwt_token :string }
+
+    dispatch(loginInMasterPassword(sendData));
+  }
 
   return (
     <View style={styles.container}>
@@ -64,8 +96,12 @@ export default function LoginScreen() {
         mode="outlined"
         style={styles.input}
         activeOutlineColor="#363636"
+        value={masterPassword}
+        onChangeText={(text) => setMasterPassword(text)}
       />
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button}
+        onPress={handleLogin}
+      >
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
       <TouchableOpacity

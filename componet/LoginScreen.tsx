@@ -26,12 +26,13 @@ type RootStackParamList = {
 };
 
 export default function LoginScreen() {
-
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const dispatch = useDispatch<AppDispatch>();
-  const loading = useSelector((state : RootState) => state.user.loading);
-  const isAuth = useSelector((state : RootState) => state.user.isAuthenticated);
+  const loading = useSelector((state: RootState) => state.user.loading);
+  const isAuth = useSelector((state: RootState) => state.user.isAuthenticated);
   const [tempLoading, setTempLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -40,28 +41,21 @@ export default function LoginScreen() {
     Poppins_600SemiBold
   });
 
-  if (!fontsLoaded) {
-    return <Text>Loading...</Text>;
-  }  
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  function handleLogin() {
-    setTempLoading(true);
-    const sendData = {
-      email: email,
-      password: password,
-    }
-    dispatch(login({ email, password }));
-  }
-
   useEffect(() => {
     if (isAuth && tempLoading) {
       navigation.navigate("Master");
     }
+  }, [isAuth, tempLoading]);
+
+  const handleLogin = () => {
+    setTempLoading(true);
+    const sendData = { email, password };
+    dispatch(login(sendData));
+  };
+
+  if (!fontsLoaded) {
+    return <Text>Loading...</Text>;
   }
-  , [isAuth]);
 
   return (
     <KeyboardAvoidingView style={styles.container}>
@@ -69,32 +63,14 @@ export default function LoginScreen() {
         source={require("../assets/image.png")}
         style={{ width: "100%", height: 300, marginBottom: -30 }}
       />
-      <Text
-        style={{
-          fontSize: 24,
-          fontFamily: "Poppins_700Bold",
-          textAlign: "center",
-          color: "#363636",
-        }}
-      >
-        Welcome to Encrypto
-      </Text>
-      <Text
-        style={{
-          color: "#878C8F",
-          textAlign: "center",
-          fontFamily: "Poppins_500Medium",
-          marginBottom: 20,
-        }}
-      >
-        Sign in to continue
-      </Text>
+      <Text style={styles.title}>Welcome to Encrypto</Text>
+      <Text style={styles.subtitle}>Sign in to continue</Text>
       <TextInput
         label="Email"
         mode="outlined"
         style={styles.input}
         activeOutlineColor="#363636"
-        onChangeText={(text) => setEmail(text)}
+        onChangeText={setEmail}
       />
       <TextInput
         label="Password"
@@ -102,29 +78,16 @@ export default function LoginScreen() {
         style={styles.input}
         activeOutlineColor="#363636"
         secureTextEntry
-        onChangeText={(text) => setPassword(text)}
+        onChangeText={setPassword}
       />
-      <TouchableOpacity style={styles.button}
-       onPress={handleLogin}
-      >
-        <Text style={styles.buttonText}>
-          {loading ? "Loading..." : "Sign In"}
-        </Text>
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>{loading ? "Loading..." : "Sign In"}</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={{
-          marginTop: 20,
-          flexDirection: "row",
-          justifyContent: "center",
-        }}
+        style={styles.registerLink}
         onPress={() => navigation.navigate("Register")}
       >
-        <Text style={{ color: "#363636", fontFamily: "Poppins_400Regular" }}>
-          Don't have an account ?{" "}
-        </Text>
-        <Text style={{ color: "#363636", fontFamily: "Poppins_600SemiBold" }}>
-          Sign up
-        </Text>
+        <Text style={styles.registerText}>Don't have an account? <Text style={styles.registerLinkText}>Sign up</Text></Text>
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );
@@ -135,8 +98,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F3F8FB",
     padding: 20,
-    fontFamily: "Poppins_400Regular",
     justifyContent: "center",
+  },
+  title: {
+    fontSize: 24,
+    fontFamily: "Poppins_700Bold",
+    textAlign: "center",
+    color: "#363636",
+  },
+  subtitle: {
+    color: "#878C8F",
+    textAlign: "center",
+    fontFamily: "Poppins_500Medium",
+    marginBottom: 20,
   },
   input: {
     backgroundColor: "transparent",
@@ -155,5 +129,18 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "#fff",
     fontFamily: "Poppins_500Medium",
+  },
+  registerLink: {
+    marginTop: 20,
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  registerText: {
+    color: "#363636",
+    fontFamily: "Poppins_400Regular",
+  },
+  registerLinkText: {
+    color: "#363636",
+    fontFamily: "Poppins_600SemiBold",
   },
 });

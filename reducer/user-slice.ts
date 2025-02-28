@@ -8,17 +8,19 @@ const initialState: {
     isAuthenticated: boolean,
     loading: boolean,
     error: string
+    isMaterLogin: boolean
 } = {
     jwt_token: null,
     refresh_token: null,
     username: null,
     isAuthenticated: false,
     loading: false,
-    error: ""
+    error: "" ,
+    isMaterLogin: false
 }
 
 const api = axios.create({
-    baseURL: "http://192.168.180.29:5000"
+    baseURL: "http://192.168.112.1:5000"
 })
 
 export const register = createAsyncThunk<{ token: string, refreshToken: string, userEmail: string }, any>(
@@ -41,6 +43,29 @@ export const  login = createAsyncThunk<{ token: string, refreshToken: string, us
         try{
             console.log(user);
             const response = await api.post("/auth/login", user , {withCredentials: true});
+            return response.data as { token: string; refreshToken: string; userEmail: string };
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+)
+
+export const loginInMasterPassword = createAsyncThunk<{ token: string, refreshToken: string, userEmail: string }, any>(
+    "user/loginInMasterPassword",
+    async (comingData : { email : string , password: string , jwt_token :string }) => {
+        try{
+            const sendData = {
+                email : comingData.email,
+                masterPassword: comingData.password
+            }
+            console.log(sendData);
+            const response = await api.post("/user/check-master-password", sendData, {
+                withCredentials: true,
+                headers: {
+                    Authorization: `Bearer ${comingData.jwt_token}`
+                }
+            }); 
             return response.data as { token: string; refreshToken: string; userEmail: string };
         } catch (error) {
             console.error(error);
@@ -88,6 +113,21 @@ const userSlice = createSlice({
                 state.error = action.error.message || "";
                 console.error(action.error);
                 alert("wrong email or password");
+            })
+        builder
+            .addCase(loginInMasterPassword.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(loginInMasterPassword.fulfilled, (state, action: { payload: { token: string, refreshToken: string, userEmail: string } }) => {
+                console.log(action.payload);
+                state.loading = false;
+                state.isAuthenticated = true;
+            })
+            .addCase(loginInMasterPassword.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message || "";
+                console.error(action.error);
+                alert("wrong master password");
             })
     }
 })
